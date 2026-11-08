@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: innovaretail-service
+  namespace: innovaretail
+spec:
+  selector:
+    app: innovaretail-api
+  ports:
+    - name: http
+      port: 5000
+      targetPort: 5000
+  type: NodePort

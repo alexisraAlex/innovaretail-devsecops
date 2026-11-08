@@ -1,0 +1,22 @@
+groups:
+  - name: innovaretail-alerts
+    rules:
+      - alert: InnovaRetailApiDown
+        expr: up{job="innovaretail-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "La API InnovaRetail no responde"
+
+      - alert: InnovaRetailHighErrorRate
+        expr: |
+          sum(rate(innovaretail_http_requests_total{status=~"5.."}[5m]))
+          /
+          clamp_min(sum(rate(innovaretail_http_requests_total[5m])), 1)
+          > 0.10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Tasa de errores HTTP 5xx superior al 10%"

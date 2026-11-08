@@ -1,0 +1,45 @@
+services:
+  innovaretail:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: innovaretail-api:2.0
+    container_name: innovaretail_api
+    ports:
+      - "5000:5000"
+    environment:
+      APP_NAME: "InnovaRetail API"
+      APP_ENV: "production"
+      APP_VERSION: "2.0.0"
+    restart: unless-stopped
+    networks:
+      - innovaretail-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: innovaretail_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../../05-Observabilidad/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - innovaretail
+    networks:
+      - innovaretail-net
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: innovaretail_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD in your local .env}
+    depends_on:
+      - prometheus
+    networks:
+      - innovaretail-net
+
+networks:
+  innovaretail-net:
+    driver: bridge
